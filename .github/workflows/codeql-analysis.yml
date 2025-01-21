@@ -43,7 +43,7 @@ jobs:
         export HOME=$(pwd)
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        make menuconfig
+        make config
     - name: Free disk space
       run: |
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
