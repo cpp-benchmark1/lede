@@ -5,6 +5,7 @@ RUN apt update && apt install -y \
     build-essential \
     netcat-openbsd \
     vim \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
