@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-# Install essential tools
+# Install compiler, netcat, and tools
 RUN apt update && apt install -y \
     build-essential \
     netcat-openbsd \
@@ -13,6 +13,21 @@ WORKDIR /app
 # Copy local files into container
 COPY . /app
 
-# Default to interactive shell
-CMD ["/bin/bash"]
+ Start bash when the container runs
+CMD ["/bin/bash"] 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++-
