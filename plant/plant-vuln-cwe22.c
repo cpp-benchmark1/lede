@@ -39,29 +39,40 @@ void vulnerable_path_traversal1(int socket_fd) {
     }
 }
 
-// Example 2: Directory creation with path traversal
+// Example 2: File rename with path traversal
 void vulnerable_path_traversal2(int socket_fd) {
-    char dirname[BUFFER_SIZE] = { 0 };
-    char cmd[BUFFER_SIZE + 10] = { 0 };
+    char input_buffer[BUFFER_SIZE] = { 0 };
+    char old_path[BUFFER_SIZE/2] = { 0 };
+    char new_path[BUFFER_SIZE/2] = { 0 };
     
-    // SOURCE: Reading user input from socket
-    read(socket_fd, dirname, BUFFER_SIZE - 1);
+    // SOURCE: Reading user input from socket (expects "oldfile|newfile" format)
+    read(socket_fd, input_buffer, BUFFER_SIZE - 1);
     
     // Remove newline if present
-    dirname[strcspn(dirname, "\n")] = 0;
+    input_buffer[strcspn(input_buffer, "\n")] = 0;
     
-    printf("Attempting to create directory: %s\n", dirname);
+    // Parse input - split by '|' delimiter
+    char *delimiter = strchr(input_buffer, '|');
+    if (delimiter) {
+        *delimiter = '\0';
+        strncpy(old_path, input_buffer, sizeof(old_path) - 1);
+        strncpy(new_path, delimiter + 1, sizeof(new_path) - 1);
+    } else {
+        write(socket_fd, "Invalid format. Use: oldfile|newfile\n", 37);
+        return;
+    }
     
-    // SINK: Vulnerable to path traversal - no validation of dirname
-    snprintf(cmd, sizeof(cmd), "mkdir -p %s", dirname);
-    int result = system(cmd);
+    printf("Attempting to rename: %s -> %s\n", old_path, new_path);
+    
+    // SINK: Vulnerable to path traversal - no validation of old_path or new_path
+    int result = rename(old_path, new_path);
     
     if (result == 0) {
-        printf("Directory created successfully\n");
-        write(socket_fd, "Directory created successfully\n", 30);
+        printf("File renamed successfully\n");
+        write(socket_fd, "File renamed successfully\n", 26);
     } else {
-        printf("Failed to create directory\n");
-        write(socket_fd, "Failed to create directory\n", 26);
+        printf("Failed to rename file\n");
+        write(socket_fd, "Failed to rename file\n", 22);
     }
 }
 
@@ -139,12 +150,13 @@ To test:
 2. Run: ./vuln-cwe22
 3. In another terminal:
    - Test 1 (File read): echo "../../etc/passwd" | nc localhost 8080
-   - Test 2 (Directory creation): echo "../../tmp/malicious" | nc localhost 8080
+   - Test 2 (File rename): echo "test.txt|../../etc/malicious.txt" | nc localhost 8080
 
 Note: This code is for educational purposes only.
 DO NOT use in production environments.
 The vulnerabilities demonstrated here can lead to:
 - Unauthorized file access
-- Directory traversal attacks
+- Path traversal attacks
+- File system manipulation outside intended directories
 - Potential system compromise
 */ 
