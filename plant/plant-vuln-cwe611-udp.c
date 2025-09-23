@@ -157,7 +157,7 @@ int main() {
     
     printf("Processing tainted XML file: %s\n", filenames[0]);
     // SINK CWE 611
-    xmlDocPtr taintedDoc = xmlReadFd(0, filenames[0], NULL, 0);
+    xmlDocPtr taintedDoc = xmlReadFd(0, filenames[0], NULL, XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
     if (taintedDoc != NULL) {
         printf("Tainted XML file parsed successfully\n");
         xmlFreeDoc(taintedDoc);

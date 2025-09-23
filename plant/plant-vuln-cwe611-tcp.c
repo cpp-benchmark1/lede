@@ -150,7 +150,7 @@ void processXmlFile(char* filename) {
         xmlInitParser();
         
         // SINK CWE 611
-        xmlDocPtr doc = xmlCtxtReadFile(NULL, filename, NULL, 0);
+        xmlDocPtr doc = xmlCtxtReadFile(NULL, filename, NULL, XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
         
         if (doc != NULL) {
             printf("XML file parsed successfully\n");
